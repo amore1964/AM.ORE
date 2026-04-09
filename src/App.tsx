@@ -1,6 +1,6 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, X, Send, Menu } from 'lucide-react';
+import { Menu, X, Send, ChevronRight, BookOpen, User, Info, Mail, Heart } from 'lucide-react';
 
 // --- TYPES ---
 interface TextItem {
@@ -8,62 +8,87 @@ interface TextItem {
   title: string;
   excerpt: string;
   content: string;
-  date: string;
+  category: 'Poésie' | 'Rap';
 }
 
-// --- DATA ---
+// --- DATA (Exemples de textes) ---
 const TEXTS: TextItem[] = [
   {
     id: 1,
-    title: "Cicatrices d'encre",
-    date: "2024",
-    excerpt: "Le bitume ne ment pas, il boit nos larmes sans broncher. J'écris pour ne pas oublier que sous la peau, ça brûle encore...",
-    content: `Le bitume ne ment pas, il boit nos larmes sans broncher.
-J'écris pour ne pas oublier que sous la peau, ça brûle encore.
-Chaque mot est une suture, un fil de soie sur une plaie ouverte.
-On nous a dit de nous taire, alors on a hurlé en silence sur les murs de la ville.
+    title: "L'écho du silence",
+    category: 'Poésie',
+    excerpt: "Dans le creux de la nuit, quand les mots se dérobent, je cherche la lumière sous les décombres de mes songes...",
+    content: `Dans le creux de la nuit, quand les mots se dérobent,
+Je cherche la lumière sous les décombres de mes songes.
+Le silence n'est pas vide, il est une robe
+Que l'on porte quand le cœur en a fini des mensonges.
 
-L'encre est mon sang, le papier ma terre d'asile.
-Je ne cherche pas la beauté, je cherche la vérité brute.
-Celle qui gratte, celle qui dérange, celle qui libère.
-Parce que la résilience n'est pas un mot doux, c'est un combat de chaque instant.`
+Chaque battement est une rime qui s'ignore,
+Un rythme sourd qui bat la mesure de l'absence.
+Mais dans cette pénombre, je sens encore
+La force fragile d'une nouvelle naissance.
+
+Les traumatismes sont des encres indélébiles,
+Mais la plume est un scalpel qui libère le sang.
+Écrire pour ne plus être ce jouet immobile,
+Écrire pour redevenir un être vivant.`
   },
   {
     id: 2,
-    title: "Révolte Intime",
-    date: "2023",
-    excerpt: "Ils veulent des rimes qui caressent, je leur donne des vers qui cognent. Ma poésie est un poing levé dans le noir...",
-    content: `Ils veulent des rimes qui caressent, je leur donne des vers qui cognent.
-Ma poésie est un poing levé dans le noir, une étincelle dans le brouillard.
-On ne guérit pas en ignorant la blessure, on guérit en la regardant en face.
-En acceptant que la chute fait partie du vol.
+    title: "Bitume et Résilience",
+    category: 'Rap',
+    excerpt: "Micro en main, je déballe le sac, trop de poids sur le cœur, trop de coups dans le bac. La rue m'a appris que rien n'est gratuit...",
+    content: `Micro en main, je déballe le sac,
+Trop de poids sur le cœur, trop de coups dans le bac.
+La rue m'a appris que rien n'est gratuit,
+Que la douleur se soigne quand la rime s'enfuit.
 
-Je suis le produit de mes échecs et de mes colères.
-Mais de cette boue, j'en fais de l'or noir.
-Une poésie de survie, une esthétique de la rupture.
-Rien n'est jamais fini tant que le dernier mot n'est pas posé.`
+J'ai vu des frères tomber, des sœurs s'effacer,
+Des destins brisés qu'on ne peut plus ramasser.
+Mais le rap est mon souffle, ma thérapie brute,
+C'est le cri de l'âme qui refuse la chute.
+
+On nous dit de nous taire, de rester dans le rang,
+Mais ma voix est un torrent, un vent dérangeant.
+Je transforme la haine en une force de vie,
+Car c'est dans le texte que je trouve mon abri.`
   },
   {
     id: 3,
-    title: "L'Amour en Sursis",
-    date: "2024",
-    excerpt: "On s'aime comme on survit : avec urgence et peur du lendemain. Nos cœurs sont des zones de guerre où fleurissent des roses de fer...",
-    content: `On s'aime comme on survit : avec urgence et peur du lendemain.
-Nos cœurs sont des zones de guerre où fleurissent des roses de fer.
-L'amour n'est pas un long fleuve tranquille, c'est un torrent qui emporte tout.
-C'est la seule chose qui nous rappelle qu'on est encore vivants.
+    title: "Le chemin vers soi",
+    category: 'Poésie',
+    excerpt: "Il a fallu des années pour désapprendre la peur, pour laisser la tendresse fleurir sur les cicatrices...",
+    content: `Il a fallu des années pour désapprendre la peur,
+Pour laisser la tendresse fleurir sur les cicatrices.
+Le chemin est long, semé de mille douleurs,
+Mais chaque pas nous éloigne des anciens sacrifices.
 
-Même si ça fait mal, même si ça finit mal.
-On recommence, on s'obstine, on s'accroche.
-Parce que sans cette tension, la vie n'est qu'un long silence.
-Et moi, j'ai trop de choses à dire pour me taire.`
+Regarder le miroir sans baisser les yeux,
+Accepter l'ombre pour mieux chérir la clarté.
+Nous sommes des êtres brisés mais merveilleux,
+Façonnés par l'orage et la volonté.
+
+Les mots sont des ponts jetés sur l'abîme,
+Des mains tendues vers celui que l'on fut.
+Chaque vers est une victoire, chaque rime
+Est un territoire que l'on a reconquis.`
   }
 ];
 
 export default function App() {
-  const [selectedText, setSelectedText] = useState<TextItem | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedText, setSelectedText] = useState<TextItem | null>(null);
   const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [scrolled, setScrolled] = useState(false);
+
+  // Handle scroll for navbar styling
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleContactSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -75,168 +100,223 @@ export default function App() {
   };
 
   const navLinks = [
-    { name: 'Manifeste', href: '#accueil' },
-    { name: 'Le Projet', href: '#projet' },
-    { name: 'Textes', href: '#textes' },
-    { name: 'À Propos', href: '#propos' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'Accueil', href: '#accueil', icon: <BookOpen size={18} /> },
+    { name: 'Le Projet', href: '#projet', icon: <Info size={18} /> },
+    { name: 'Textes', href: '#textes', icon: <Heart size={18} /> },
+    { name: 'À Propos', href: '#propos', icon: <User size={18} /> },
+    { name: 'Contact', href: '#contact', icon: <Mail size={18} /> },
   ];
 
   return (
-    <div className="relative min-h-screen bg-ink-black overflow-x-hidden">
-      <div className="noise-bg fixed inset-0 z-50"></div>
-
+    <div className="min-h-screen selection:bg-warm-accent/20">
       {/* --- NAVIGATION --- */}
-      <nav className="fixed top-0 left-0 w-full z-[60] mix-blend-difference px-6 py-8 flex justify-between items-center">
-        <a href="#accueil" className="text-2xl font-display tracking-tighter text-paper-white uppercase">
-          AM.ORE
-        </a>
-        
-        <div className="hidden md:flex space-x-12">
-          {navLinks.map((link) => (
-            <a 
-              key={link.name} 
-              href={link.href}
-              className="text-[10px] uppercase tracking-[0.3em] font-bold hover:text-blood-red transition-colors"
-            >
-              {link.name}
-            </a>
-          ))}
-        </div>
+      <nav 
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+          scrolled ? 'bg-warm-bg/90 backdrop-blur-md py-4 shadow-sm' : 'bg-transparent py-6'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+          <a href="#accueil" className="text-2xl font-serif font-bold tracking-tight text-warm-text">
+            Wordstherapy <span className="text-warm-accent">/</span> AM.ORE
+          </a>
 
-        <button 
-          className="md:hidden text-paper-white"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </nav>
-
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            className="fixed inset-0 z-[55] bg-ink-black flex flex-col items-center justify-center space-y-8"
-          >
+          {/* Desktop Nav */}
+          <div className="hidden md:flex space-x-8">
             {navLinks.map((link) => (
               <a 
                 key={link.name} 
                 href={link.href}
-                onClick={() => setIsMenuOpen(false)}
-                className="text-4xl font-display uppercase tracking-tighter hover:text-blood-red transition-colors"
+                className="text-sm font-medium hover:text-warm-accent transition-colors uppercase tracking-widest"
               >
                 {link.name}
               </a>
             ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* --- SECTION: ACCUEIL --- */}
-      <section id="accueil" className="min-h-screen flex flex-col justify-center px-6 md:px-24 pt-32">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-        >
-          <h1 className="text-[20vw] md:text-[25vw] leading-[0.8] mb-8 select-none">
-            AM<span className="text-blood-red">.</span>ORE
-          </h1>
-          <div className="max-w-3xl">
-            <p className="text-2xl md:text-4xl font-serif italic leading-tight mb-12">
-              "L'écriture comme un cri de survie, une poésie de la rupture où la blessure devient la source."
-            </p>
-            <div className="h-px w-24 bg-blood-red mb-12"></div>
-            <p className="text-xs uppercase tracking-[0.5em] opacity-50">
-              Artiste-Auteur / Poésie Brute / Résilience Urbaine
-            </p>
           </div>
-        </motion.div>
+
+          {/* Mobile Menu Toggle */}
+          <button 
+            className="md:hidden text-warm-text"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile Nav Overlay */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="absolute top-full left-0 w-full bg-warm-bg shadow-xl py-8 px-6 md:hidden flex flex-col space-y-6 border-t border-black/5"
+            >
+              {navLinks.map((link) => (
+                <a 
+                  key={link.name} 
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-lg font-medium flex items-center space-x-4"
+                >
+                  <span className="text-warm-accent">{link.icon}</span>
+                  <span>{link.name}</span>
+                </a>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      {/* --- SECTION: ACCUEIL (HERO) --- */}
+      <section id="accueil" className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-warm-accent rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-warm-accent rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-6 text-center z-10">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-5xl md:text-7xl lg:text-8xl font-serif mb-8 leading-tight"
+          >
+            Le pouvoir des mots <br />
+            <span className="italic text-warm-accent">pour guérir</span>
+          </motion.h1>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-xl md:text-2xl text-warm-text/70 mb-12 max-w-2xl mx-auto leading-relaxed"
+          >
+            Un espace de poésie et de rap thérapeutique pour mettre des mots sur les douleurs, 
+            les traumatismes et tracer le chemin de la résilience.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <a 
+              href="#textes" 
+              className="inline-flex items-center space-x-3 bg-warm-text text-warm-bg px-8 py-4 rounded-full hover:bg-warm-accent transition-all group"
+            >
+              <span className="font-medium uppercase tracking-widest text-sm">Découvrir les textes</span>
+              <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            </a>
+          </motion.div>
+        </div>
       </section>
 
       {/* --- SECTION: LE PROJET --- */}
-      <section id="projet" className="py-32 px-6 md:px-24 bg-street-grey/30">
-        <div className="grid md:grid-cols-2 gap-16 items-start">
-          <div className="sticky top-32">
-            <h2 className="text-6xl md:text-8xl mb-8">Le Projet</h2>
-            <div className="text-blood-red font-bold text-sm uppercase tracking-widest mb-4">La démarche</div>
-          </div>
-          <div className="space-y-12 text-lg md:text-xl leading-relaxed opacity-80">
-            <p>
-              Mon travail d'écriture n'est pas une quête esthétique, c'est une nécessité vitale. 
-              C'est mettre des mots sur ce qui se tait, sur ce qui gratte, sur ce qui empêche de dormir.
-            </p>
-            <p>
-              Je puise mon inspiration dans le bitume, dans les tensions de la ville, dans les regards 
-              fuyants et les mains qui tremblent. Ma poésie est brute, sans filtre, comme une affiche 
-              déchirée sur un mur de briques.
-            </p>
-            <p className="border-l-2 border-blood-red pl-8 italic font-serif">
-              "Il n'y a pas de lumière sans ombre, pas de résilience sans chute. J'écris depuis la faille."
-            </p>
+      <section id="projet" className="py-24 bg-white/50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl"
+            >
+              <img 
+                src="https://picsum.photos/seed/writing/800/800" 
+                alt="Écriture thérapeutique" 
+                className="object-cover w-full h-full"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-warm-accent/10 mix-blend-multiply"></div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-5xl font-serif mb-8">Le Concept</h2>
+              <div className="space-y-6 text-lg text-warm-text/80 leading-relaxed">
+                <p>
+                  Wordstherapy est né d'une conviction profonde : l'écriture est un remède. 
+                  À travers la création de poèmes et de textes rap personnalisés, je propose 
+                  un accompagnement par les mots pour explorer ses émotions.
+                </p>
+                <p>
+                  Il ne s'agit pas de "soigner" au sens médical, mais d'offrir un espace 
+                  d'expression brute où le traumatisme peut être nommé, déconstruit et 
+                  transformé en un récit de force.
+                </p>
+                <p>
+                  Chaque texte est une étape sur le chemin vers soi, une main tendue pour 
+                  retrouver sa propre voix au milieu du tumulte intérieur.
+                </p>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* --- SECTION: TEXTES --- */}
-      <section id="textes" className="py-32 px-6 md:px-24">
-        <h2 className="text-6xl md:text-8xl mb-24 text-right">Textes</h2>
-        
-        <div className="grid md:grid-cols-3 gap-px bg-paper-white/10 border border-paper-white/10">
-          {TEXTS.map((text) => (
-            <motion.div 
-              key={text.id}
-              whileHover={{ backgroundColor: 'rgba(139, 0, 0, 0.05)' }}
-              className="p-12 flex flex-col h-full group cursor-pointer"
-              onClick={() => setSelectedText(text)}
-            >
-              <div className="text-[10px] uppercase tracking-widest opacity-40 mb-8">{text.date}</div>
-              <h3 className="text-3xl mb-6 group-hover:text-blood-red transition-colors">{text.title}</h3>
-              <p className="text-sm opacity-60 mb-12 flex-grow leading-relaxed">
-                {text.excerpt}
-              </p>
-              <div className="flex items-center space-x-4 text-xs uppercase tracking-widest font-bold">
-                <span>Lire l'extrait</span>
-                <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
-              </div>
-            </motion.div>
-          ))}
+      <section id="textes" className="py-24">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-serif mb-4">Fragments de Résilience</h2>
+            <p className="text-warm-text/60 uppercase tracking-widest text-sm">Poésie & Rap Thérapeutique</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {TEXTS.map((text, index) => (
+              <motion.div
+                key={text.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white p-8 rounded-2xl shadow-sm border border-black/5 hover:shadow-xl transition-all flex flex-col h-full"
+              >
+                <span className="text-xs font-bold uppercase tracking-widest text-warm-accent mb-4 block">
+                  {text.category}
+                </span>
+                <h3 className="text-2xl font-serif mb-4">{text.title}</h3>
+                <p className="text-warm-text/70 mb-8 flex-grow italic">
+                  "{text.excerpt}"
+                </p>
+                <button 
+                  onClick={() => setSelectedText(text)}
+                  className="inline-flex items-center space-x-2 text-warm-text font-bold hover:text-warm-accent transition-colors group"
+                >
+                  <span className="uppercase tracking-widest text-xs">Lire le texte</span>
+                  <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* --- SECTION: À PROPOS --- */}
-      <section id="propos" className="py-32 px-6 md:px-24">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid md:grid-cols-12 gap-12 items-center">
-            <div className="md:col-span-5">
-              <div className="aspect-[3/4] bg-street-grey relative overflow-hidden">
-                <img 
-                  src="https://picsum.photos/seed/artist/800/1200?grayscale" 
-                  alt="AM.ORE" 
-                  className="object-cover w-full h-full opacity-50 mix-blend-luminosity"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-blood-red/10"></div>
-              </div>
-            </div>
-            <div className="md:col-span-7">
-              <h2 className="text-6xl md:text-8xl mb-12">À Propos</h2>
-              <div className="space-y-8 opacity-80 text-lg">
-                <p>
-                  AM.ORE est un nom d'emprunt, une identité forgée dans l'urgence. 
-                  Auteur autodidacte, j'utilise les mots comme des outils de transformation.
-                </p>
-                <p>
-                  Mon parcours est jalonné de silences et de bruits sourds. 
-                  L'écriture est arrivée comme une bouée de sauvetage, puis est devenue 
-                  une arme de construction massive.
-                </p>
-                <p>
-                  Je ne cherche pas à plaire, je cherche à toucher le point de rupture. 
-                  Là où tout s'arrête et où tout commence.
+      <section id="propos" className="py-24 bg-warm-accent/5">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="bg-white p-12 md:p-16 rounded-3xl shadow-sm border border-black/5">
+            <h2 className="text-4xl md:text-5xl font-serif mb-8 text-center">À Propos</h2>
+            <div className="space-y-8 text-lg text-warm-text/80 leading-relaxed">
+              <p>
+                Mon parcours est celui d'une reconstruction. L'écriture, le rap et la poésie 
+                ont été mes piliers dans les moments de doute et de tempête. C'est cette 
+                résilience personnelle que je souhaite partager aujourd'hui.
+              </p>
+              <p>
+                J'ai créé Wordstherapy pour transformer les silences pesants en paroles 
+                libératrices. Mon approche utilise les codes du rap pour sa force percutante 
+                et ceux de la poésie pour sa douceur contemplative.
+              </p>
+              <div className="flex items-center space-x-4 pt-4">
+                <div className="w-12 h-12 rounded-full bg-warm-accent/20 flex items-center justify-center text-warm-accent">
+                  <Heart size={24} />
+                </div>
+                <p className="font-serif italic text-xl">
+                  "Les mots ne changent pas le passé, mais ils éclairent l'avenir."
                 </p>
               </div>
             </div>
@@ -245,58 +325,81 @@ export default function App() {
       </section>
 
       {/* --- SECTION: CONTACT --- */}
-      <section id="contact" className="py-32 px-6 md:px-24 bg-street-grey/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-6xl md:text-8xl mb-12">Contact</h2>
-          <p className="text-xl opacity-60 mb-16">Pour les collaborations, les lectures ou les mots partagés.</p>
-          
-          <form onSubmit={handleContactSubmit} className="text-left space-y-12">
-            <div className="grid md:grid-cols-2 gap-12">
-              <div className="border-b border-paper-white/20 pb-4 focus-within:border-blood-red transition-colors">
-                <label className="block text-[10px] uppercase tracking-widest opacity-40 mb-2">Nom</label>
-                <input 
-                  required
-                  type="text" 
-                  className="w-full bg-transparent outline-none text-xl"
-                  placeholder="Votre nom"
-                />
-              </div>
-              <div className="border-b border-paper-white/20 pb-4 focus-within:border-blood-red transition-colors">
-                <label className="block text-[10px] uppercase tracking-widest opacity-40 mb-2">Email</label>
-                <input 
-                  required
-                  type="email" 
-                  className="w-full bg-transparent outline-none text-xl"
-                  placeholder="votre@email.com"
-                />
+      <section id="contact" className="py-24">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-16">
+            <div>
+              <h2 className="text-4xl md:text-5xl font-serif mb-8">Contact</h2>
+              <p className="text-lg text-warm-text/70 mb-8 leading-relaxed">
+                Vous souhaitez un texte personnalisé, collaborer sur un projet ou simplement 
+                partager votre ressenti ? N'hésitez pas à m'écrire.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4 text-warm-text/60">
+                  <Mail size={20} />
+                  <span>contact@wordstherapy.fr</span>
+                </div>
               </div>
             </div>
-            <div className="border-b border-paper-white/20 pb-4 focus-within:border-blood-red transition-colors">
-              <label className="block text-[10px] uppercase tracking-widest opacity-40 mb-2">Message</label>
-              <textarea 
-                required
-                rows={4}
-                className="w-full bg-transparent outline-none text-xl resize-none"
-                placeholder="Écrivez ici..."
-              ></textarea>
-            </div>
-            
-            <button 
-              type="submit"
-              disabled={formStatus !== 'idle'}
-              className="group flex items-center space-x-6 text-2xl font-display uppercase tracking-tighter hover:text-blood-red transition-colors"
-            >
-              <span>{formStatus === 'idle' ? 'Envoyer' : formStatus === 'sending' ? 'Envoi...' : 'Envoyé'}</span>
-              <Send size={24} className="group-hover:translate-x-2 transition-transform" />
-            </button>
-          </form>
+
+            <form onSubmit={handleContactSubmit} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest font-bold mb-2">Nom</label>
+                  <input 
+                    required
+                    type="text" 
+                    className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-warm-accent transition-colors"
+                    placeholder="Votre nom"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest font-bold mb-2">Email</label>
+                  <input 
+                    required
+                    type="email" 
+                    className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-warm-accent transition-colors"
+                    placeholder="votre@email.com"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest font-bold mb-2">Message</label>
+                <textarea 
+                  required
+                  rows={5}
+                  className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-warm-accent transition-colors resize-none"
+                  placeholder="Votre message..."
+                ></textarea>
+              </div>
+              <button 
+                type="submit"
+                disabled={formStatus !== 'idle'}
+                className={`w-full flex items-center justify-center space-x-3 py-4 rounded-xl font-bold uppercase tracking-widest text-sm transition-all ${
+                  formStatus === 'sent' 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-warm-text text-warm-bg hover:bg-warm-accent'
+                }`}
+              >
+                {formStatus === 'idle' && (
+                  <>
+                    <span>Envoyer le message</span>
+                    <Send size={18} />
+                  </>
+                )}
+                {formStatus === 'sending' && <span>Envoi en cours...</span>}
+                {formStatus === 'sent' && <span>Message envoyé !</span>}
+              </button>
+            </form>
+          </div>
         </div>
       </section>
 
       {/* --- FOOTER --- */}
-      <footer className="py-12 px-6 md:px-24 border-t border-paper-white/10 flex flex-col md:flex-row justify-between items-center opacity-40 text-[10px] uppercase tracking-[0.3em]">
-        <p>© {new Date().getFullYear()} AM.ORE — TOUS DROITS RÉSERVÉS</p>
-        <p>ÉCRITURE BRUTE / SURVIE POÉTIQUE</p>
+      <footer className="py-12 border-t border-black/5 text-center">
+        <p className="text-sm text-warm-text/40 uppercase tracking-widest">
+          © {new Date().getFullYear()} Wordstherapy / AM.ORE — L'art de la résilience
+        </p>
       </footer>
 
       {/* --- MODAL: TEXTE COMPLET --- */}
@@ -306,34 +409,36 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-ink-black/95 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-warm-text/40 backdrop-blur-sm"
             onClick={() => setSelectedText(null)}
           >
             <motion.div 
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 50, opacity: 0 }}
-              className="bg-street-grey w-full max-w-3xl max-h-[85vh] overflow-y-auto p-12 md:p-20 relative border border-paper-white/10"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-warm-bg w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-3xl shadow-2xl p-8 md:p-12 relative"
               onClick={(e) => e.stopPropagation()}
             >
               <button 
                 onClick={() => setSelectedText(null)}
-                className="absolute top-8 right-8 text-paper-white/40 hover:text-blood-red transition-colors"
+                className="absolute top-6 right-6 text-warm-text/40 hover:text-warm-text transition-colors"
               >
-                <X size={32} />
+                <X size={24} />
               </button>
               
-              <div className="text-[10px] uppercase tracking-widest opacity-40 mb-8">{selectedText.date}</div>
-              <h2 className="text-4xl md:text-6xl mb-12">{selectedText.title}</h2>
+              <span className="text-xs font-bold uppercase tracking-widest text-warm-accent mb-4 block">
+                {selectedText.category}
+              </span>
+              <h2 className="text-4xl font-serif mb-8">{selectedText.title}</h2>
               
-              <div className="whitespace-pre-line text-lg md:text-xl leading-relaxed font-serif italic text-paper-white/90 border-l-2 border-blood-red pl-8">
+              <div className="whitespace-pre-line text-lg md:text-xl leading-relaxed font-serif italic text-warm-text/90">
                 {selectedText.content}
               </div>
 
-              <div className="mt-20 pt-12 border-t border-paper-white/10 flex justify-center">
+              <div className="mt-12 pt-8 border-t border-black/5 flex justify-center">
                 <button 
                   onClick={() => setSelectedText(null)}
-                  className="text-[10px] uppercase tracking-[0.5em] font-bold text-paper-white/40 hover:text-blood-red transition-colors"
+                  className="text-sm uppercase tracking-widest font-bold text-warm-text/40 hover:text-warm-text transition-colors"
                 >
                   Fermer la lecture
                 </button>
